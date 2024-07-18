@@ -12,15 +12,31 @@ inputs:
     description: "The prefix to use to identify tags"
     required: false
     default: "v"
+  use_branches:
+    description: "(Deprecated) Use branches instead of tags"
+    required: false
+    default: "false"
+  version_from_branch:
+    description: If true, the branch will be used to select the maximum version
+    required: false
+    default: "false"
   major_pattern:
     description: "A string which, if present in a git commit, indicates that a change represents a major (breaking) change. Wrap with '/' to match using a regular expression."
     required: true
     default: "(MAJOR)"
+  major_regexp_flags:
+    description: "A string which indicates the flags used by the `major_pattern` regular expression. Supported flags: idgs"
+    required: false
+    default: ""
   minor_pattern:
     description: "A string which, if present in a git commit, indicates that a change represents a minor (feature) change. Wrap with '/' to match using a regular expression."
     required: true
     default: "(MINOR)"
-  format:
+  minor_regexp_flags:
+    description: "A string which indicates the flags used by the `minor_pattern` regular expression. Supported flags: idgs"
+    required: false
+    default: ""
+  version_format:
     description: "Pattern to use when formatting output version"
     required: true
     default: "${major}.${minor}.${patch}"
@@ -30,12 +46,28 @@ inputs:
   namespace:
     description: "Use to create a named sub-version. This value will be appended to tags created for this version."
     required: false
-  short_tags:
-    description: "If false, only full versions, i.e. 'v1.0.0', will be supported as tags. If true, tags will support truncated minor and patch versions such as 'v1' (default)."
-    required: true
-    default: "true"
   bump_each_commit:
     description: "If true, every commit will be treated as a bump to the version."
+    required: true
+    default: "false"
+  search_commit_body:
+    description: "If true, the body of commits will also be searched for major/minor patterns to determine the version type."
+    required: true
+    default: "false"
+  user_format_type:
+    description: "The output method used to generate list of users, 'csv' or 'json'. Default is 'csv'."
+    required: true
+    default: "csv"
+  enable_prerelease_mode:
+    description: "Prevents pre-v1.0.0 version from automatically incrementing the major version. If enabled, when the major version is 0, major releases will be treated as minor and minor as patch. Note that the version_type output is unchanged."
+    required: true
+    default: "false"
+  bump_each_commit_patch_pattern:
+    description: "If bump_each_commit is also set to true, setting this value will cause the version to increment only if the pattern specified is matched."
+    required: true
+    default: ""
+  debug:
+    description: "If enabled, diagnostic information will be added to the action output"
     required: true
     default: "false"
 outputs:
@@ -47,12 +79,27 @@ outputs:
     description: "Current patch number"
   increment:
     description: "An additional value indicating the number of commits for the current version"
+  version_type:
+    description: "Indicates the type of change this version represents vs the previous, e.g. 'major', 'minor', 'patch', or 'none'"
   version:
     description: "The version result, in the format {major}.{minor}.{patch}"
   version_tag:
     description: "The version tag"
   changed:
     description: "Indicates whether there was a change since the last version if change_path was specified. If no change_path was specified this value will always be true since the entire repo is considered."
+  is_tagged:
+    description: "Indicates that the commit had a tag that matched the 'versionTag' format"
+  authors:
+    description: "List of users contributing commits to this version"
+  previous_commit:
+    description: "Hash of the previous commit"
+  previous_version:
+    description: "Indicates the previous version"
+  current_commit:
+    description: "The current commit hash"
+  debug_output:
+    description: "Diagnostic information, if debug is enabled"
+  
 runs:
-  using: "node12"
+  using: "node20"
   main: "dist/index.js"

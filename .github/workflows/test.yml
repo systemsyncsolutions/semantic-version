@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: NPM Install
@@ -27,3 +27,9 @@ jobs:
       - name: Run Action
         uses: ./
         id: run
+        with:
+          debug: true
+      - name: Print Diagnostic Output
+        run: echo $DEBUG_OUTPUT
+        env:
+          DEBUG_OUTPUT: ${{ steps.run.outputs.debug_output }}
